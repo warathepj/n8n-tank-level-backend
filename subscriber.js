@@ -20,8 +20,28 @@ client.on('connect', () => {
   });
 });
 
+// Function to send message to webhook
+async function sendToWebhook(message) {
+  try {
+    const response = await fetch('your-webhook-url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(message)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    console.log('Successfully sent to webhook');
+  } catch (error) {
+    console.error('Error sending to webhook:', error);
+  }
+}
+
 // Handle incoming messages
-client.on('message', (topic, payload) => {
+client.on('message', async (topic, payload) => {
   try {
     const message = JSON.parse(payload.toString());
     console.log('Received message:');
@@ -34,8 +54,8 @@ client.on('message', (topic, payload) => {
     // Store the last received message
     lastMessage = message;
     
-    // Here you could add additional processing logic
-    // For example, updating a database, triggering alerts, etc.
+    // Send to webhook
+    await sendToWebhook(message);
     
   } catch (err) {
     console.error('Error parsing message:', err);
